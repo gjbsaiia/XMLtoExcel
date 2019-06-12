@@ -22,7 +22,7 @@ mu_att = ["Song"]
 # all food XML
 fu_xml = []
 # attributes belonging to food
-fu_att = ["HamB", "VegB", "HDog", "VDog", "Ketchup", "Mustard", "Mayo", "Relish", "Lettuce", "Tomato", "Onion", "Pickles"]
+fu_att = ["HamB", "VegB", "HDog", "VDog", "Ketchup", "Mustard", "Mayo", "Relish", "Lettuce", "Tomato", "Onion", "Pickles", "Cheese"]
 # all activity XML
 act_xml = []
 # attributes belonging to activity
@@ -54,6 +54,7 @@ indexMap = {
     "Tomato": ["J", 2, False],
     "Onion": ["K", 2, False],
     "Pickles": ["L", 2, False],
+    "Cheese": ["M", 2, False],
     "Song": ["A", 2, True]
 }
 
@@ -61,24 +62,34 @@ def main():
     newData()
     if mu_xml:
         sheet = getSheet(mu)
-        updateIndexes(sheet, mu_att)
-        values = stripMuXml(mu_xml, mu_att)
-        writeExcel(sheet, values, mu_att)
+        #updateIndexes(sheet, mu_att)
+        for each in mu_xml:
+            values = stripMuXml(each, mu_att)
+            print("Writing to Music Sheet: ")
+            writeExcel(sheet, values, mu_att)
+            print
     if act_xml:
         sheet = getSheet(act)
-        updateIndexes(sheet, act_att)
-        values = stripMuXml(act_xml, act_att)
-        writeExcel(sheet, values, act_att)
+        #updateIndexes(sheet, act_att)
+        for each in act_xml:
+            values = stripActXml(each, act_att)
+            print("Writing to Activity Sheet: ")
+            writeExcel(sheet, values, act_att)
+            print
     if fu_xml:
         sheet = getSheet(fu)
-        values = stripMuXml(fu_xml, fu_att)
-        writeFoodExcel(sheet, values, fu_att)
+        for each in fu_xml:
+            values = stripFuXml(each, fu_att)
+            print("Writing to Food Sheet: ")
+            writeFoodExcel(sheet, values, fu_att)
+    #wipeData()
     
 # update indexes in IndexMap
 def updateIndexes(sheet, att):
     for each in att:
         if indexMap[each][2]:
-            indexMap[each].update([indexMap[each][0], getMaxRow(sheet, indexMap[each][0])+1, indexMap[each][2]])
+            updateEntry = { each : [indexMap[each][0], getMaxRow(sheet, indexMap[each][0])+1, indexMap[each][2]]}
+            indexMap.update(updateEntry)
 
 # returns sheet corresponding to specific data set
 def getSheet(name):
@@ -99,6 +110,12 @@ def newData():
         if "activities" in each:
             act_xml.append(xml_fold+each)
 
+def wipeData():
+    global xml_fold
+    resp = os.listdir(xml_fold)
+    for each in resp:
+        os.remove(xml_fold+each)
+
 # helper to return Max row cleanly
 def getMaxRow(sheet, col):
     return len(sheet[col])
@@ -109,13 +126,41 @@ def writeExcel(sheet, values, att):
     for each in values:
         if(i >= len(att)):
             break
+        print(indexMap[att[i]][0]+str(indexMap[att[i]][1])+": "+each)
         sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = each
         if(indexMap[att[i]][2]):
-            indexMap[att[i]].update(indexMap[att[i]][0], indexMap[att[i]][1]+1, True)
+            update = { att[i]: [indexMap[att[i]][0], indexMap[att[i]][1]+1, True]}
+            indexMap.update(update)
+        if( i < len(att)-1):
+            i+=1
+
+def writeFoodExcel(sheet, values, att):
+    i = 0
+    for each in values:
+        if i == 0 or i == 1:
+            if(i == 0):
+                if(int(each) < 0):
+                    print(indexMap["VegB"][0]+str(indexMap["VegB"][1])+": "+str(abs(int(each))))
+                    sheet[indexMap["VegB"][0]+str(indexMap["VegB"][1])] = abs(int(each))
+                else:
+                    print(indexMap["HamB"][0]+str(indexMap["HamB"][1])+": "+str(abs(int(each))))
+                    sheet[indexMap["HamB"][0]+str(indexMap["HamB"][1])] = abs(int(each))
+            else:
+                if(int(each) < 0):
+                    print(indexMap["VDog"][0]+str(indexMap["VDog"][1])+": "+str(abs(int(each))))
+                    sheet[indexMap["VDog"][0]+str(indexMap["VDog"][1])] = abs(int(each))
+                else:
+                    print(indexMap["HDog"][0]+str(indexMap["HDog"][1])+": "+str(abs(int(each))))
+                    sheet[indexMap["HDog"][0]+str(indexMap["HDog"][1])] = abs(int(each))
+        else:
+            print(indexMap[att[i]][0]+str(indexMap[att[i]][1])+": "+str(each))
+            sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = int(each)
+        if( i < len(att)-1):
+            i+=1
 
 def stripActXml(xml, att):
     values = []
-    tree = ET.parse(path)
+    tree = ET.parse(xml)
     root = tree.getroot()
     xmlstr = ET.tostring(root, encoding='utf8', method='xml')
     xmlLis = xmlstr.split("\n")
@@ -123,15 +168,21 @@ def stripActXml(xml, att):
     for each in xmlLis:
         if(">" in each and "<" in each):
             splitted = each.split(">")
-            if splitted[1] and att[j] in splitted[1]:
-                values.append(splitted[1].split("<")[0])
-                if( j < len(att)):
+            if att[j] in splitted[0]:
+                if splitted[1]:
+                    if(splitted[1].split("<")[0] == "true"):
+                        values.append("1")
+                    else:
+                        values.append(splitted[1].split("<")[0])
+                else:
+                    values.append("")
+                if( j < len(att)-1):
                     j+=1
     return values
 
 def stripMuXml(xml, att):
     values = []
-    tree = ET.parse(path)
+    tree = ET.parse(xml)
     root = tree.getroot()
     xmlstr = ET.tostring(root, encoding='utf8', method='xml')
     xmlLis = xmlstr.split("\n")
@@ -150,28 +201,39 @@ def stripMuXml(xml, att):
     return values
 
 def stripFuXml(xml, att):
-    tree = ET.parse(path)
+    values = []
+    tree = ET.parse(xml)
     root = tree.getroot()
     xmlstr = ET.tostring(root, encoding='utf8', method='xml')
     xmlLis = xmlstr.split("\n")
     j = 0
+    next = False
     for each in xmlLis:
-        next = False
         v = 1
         if(">" in each and "<" in each):
             splitted = each.split(">")
-            if splitted[1]:
-                if att[j] in splitted[1]:
-                    values.append(splitted[1].split("<")[0])
-                    if( j < len(att)):
-                        j+=1
-                if "Burger" in splitted[1] or "Dogs":
-                    if(int(splitted[1].split("<")[0]) == 1):
-                        v = -1
-                    next = True
+            if(next):
+                values.append(int(splitted[1].split("<")[0]) * v)
+                next = False
+                if( j < len(att)-1):
                     j+=1
-                if(next):
-                    values.append(int(splitted[1].split("<")[0]) * -1)
+            if ":Burger" in splitted[0] or ":Dogs" in splitted[0]:
+                if(splitted[1].split("<")[0] == "true"):
+                    v = -1
+                else:
+                    v = 1
+                next = True
+                if( j < len(att)-1):
+                    j+=1
+            if att[j] in splitted[0]:
+                if splitted[1]:
+                    if(splitted[1].split("<")[0] == "true"):
+                        values.append("1")
+                    else:
+                        values.append(splitted[1].split("<")[0])
+                else:
+                    values.append("0")
+                if( j < len(att)-1):
                     j+=1
     return values
 

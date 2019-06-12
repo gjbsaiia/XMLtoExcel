@@ -1,16 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.2" productVersion="15.0.0" PIVersion="1.0.0.0" href="file:///\\NCSMBP01\Home\My%20Documents\2019_Picnic\Forms\activities_survey.xsn" name="urn:schemas-microsoft-com:office:infopath:activities-survey:-myXSD-2019-06-10T13-52-38" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.4"?><my:myFields xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2019-06-10T13:52:38" xml:lang="en-us">
-	<my:Name>Robbie Barnes</my:Name>
+<?mso-infoPathSolution name="urn:schemas-microsoft-com:office:infopath:Cle-Activities-Survey:-myXSD-2019-06-10T13-52-38" solutionVersion="1.0.0.26" productVersion="15.0.0.0" PIVersion="1.0.0.0" href="http://pgr/sites/ETSINTERN/ETSPicnic/Cle_Activities_Survey/Forms/template.xsn"?>
+<?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.4"?>
+<my:myFields xml:lang="en-US" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2019-06-10T13:52:38" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003">
+	<my:Name>Griffin Saiia</my:Name>
 	<my:Costanzo_No></my:Costanzo_No>
-	<my:ShouldBeMatched>2</my:ShouldBeMatched>
-	<my:Member2>Nick Mourfield</my:Member2>
-	<my:Tug_Y_N>0</my:Tug_Y_N>
+	<my:ShouldBeMatched>1</my:ShouldBeMatched>
+	<my:Member2></my:Member2>
+	<my:Tug_Y_N>1</my:Tug_Y_N>
 	<my:Home_Y_N>0</my:Home_Y_N>
 	<my:Pin_Y_N>1</my:Pin_Y_N>
-	<my:Rock></my:Rock>
-	<my:HipHop>1</my:HipHop>
-	<my:Alternative></my:Alternative>
-	<my:RnB></my:RnB>
-	<my:Country></my:Country>
-	<my:EDM></my:EDM>
-	<my:Pop></my:Pop>
+	<my:Rock>true</my:Rock>
+	<my:HipHop>true</my:HipHop>
+	<my:Alternative>true</my:Alternative>
+	<my:RnB>true</my:RnB>
+	<my:Country>0</my:Country>
+	<my:EDM>0</my:EDM>
+	<my:Pop>0</my:Pop>
 </my:myFields>
