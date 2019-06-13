@@ -73,6 +73,7 @@ def main():
     if fu_xml:
         for each in fu_xml:
             values = stripFuXml(each, fu_att)
+            print(values)
             writeFoodExcel(fu, values, fu_att)
     wipeData()
     
@@ -152,7 +153,10 @@ def writeFoodExcel(name, values, att):
                 if( i < len(att)-1):
                     i+=1
         else:
-            sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = int(each) + int(sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])].value)
+            if(each == "false"):
+                each = 0
+            else:
+                sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = int(each) + int(sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])].value)
         if( i < len(att)-1):
             i+=1
     wb.save("picnicData.xlsx")
@@ -206,9 +210,9 @@ def stripFuXml(xml, att):
     xmlstr = ET.tostring(root, encoding='utf8', method='xml')
     xmlLis = xmlstr.split("\n")
     j = 0
+    v = 1
     next = False
     for each in xmlLis:
-        v = 1
         if(">" in each and "<" in each):
             splitted = each.split(">")
             if(next):
@@ -217,7 +221,8 @@ def stripFuXml(xml, att):
                 if( j < len(att)-1):
                     j+=1
             if ":Burger" in splitted[0] or ":Dogs" in splitted[0]:
-                if(splitted[1].split("<")[0] == "true"):
+                print(each)
+                if(splitted[1].split("<")[0] == "true" or splitted[1].split("<")[0] == "1"):
                     v = -1
                 else:
                     v = 1
@@ -226,7 +231,7 @@ def stripFuXml(xml, att):
                     j+=1
             if att[j] in splitted[0]:
                 if splitted[1]:
-                    if(splitted[1].split("<")[0] == "true"):
+                    if(splitted[1].split("<")[0] == "true" or splitted[1].split("<")[0] == "1"):
                         values.append("1")
                     else:
                         values.append(splitted[1].split("<")[0])
