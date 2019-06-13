@@ -5,7 +5,7 @@ import openpyxl
 import xml.etree.ElementTree as ET
 
 # data file name
-wkbk = "data.xlsx"
+wkbk = "picnicData.xlsx"
 # music sheet name
 mu = "Music"
 # food sheet name
@@ -61,42 +61,27 @@ indexMap = {
 def main():
     newData()
     if mu_xml:
-        sheet = getSheet(mu)
-        #updateIndexes(sheet, mu_att)
+        updateIndexes(mu, mu_att)
         for each in mu_xml:
             values = stripMuXml(each, mu_att)
-            print("Writing to Music Sheet: ")
-            writeExcel(sheet, values, mu_att)
-            print
+            writeExcel(mu, values, mu_att)
     if act_xml:
-        sheet = getSheet(act)
-        #updateIndexes(sheet, act_att)
+        updateIndexes(act, act_att)
         for each in act_xml:
             values = stripActXml(each, act_att)
-            print("Writing to Activity Sheet: ")
-            writeExcel(sheet, values, act_att)
-            print
+            writeExcel(act, values, act_att)
     if fu_xml:
-        sheet = getSheet(fu)
         for each in fu_xml:
             values = stripFuXml(each, fu_att)
-            print("Writing to Food Sheet: ")
-            writeFoodExcel(sheet, values, fu_att)
-    #wipeData()
+            writeFoodExcel(fu, values, fu_att)
+    wipeData()
     
 # update indexes in IndexMap
-def updateIndexes(sheet, att):
+def updateIndexes(name, att):
     for each in att:
         if indexMap[each][2]:
-            updateEntry = { each : [indexMap[each][0], getMaxRow(sheet, indexMap[each][0])+1, indexMap[each][2]]}
+            updateEntry = { each : [indexMap[each][0], getMaxRow(name, indexMap[each][0]), indexMap[each][2]]}
             indexMap.update(updateEntry)
-
-# returns sheet corresponding to specific data set
-def getSheet(name):
-    global wkbk
-    wb = openpyxl.load_workbook(wkbk)
-    sheet = wb.get_sheet_by_name(name)
-    return sheet
 
 # checks for and organizes new data sets
 def newData():
@@ -117,46 +102,60 @@ def wipeData():
         os.remove(xml_fold+each)
 
 # helper to return Max row cleanly
-def getMaxRow(sheet, col):
-    return len(sheet[col])
+def getMaxRow(name, col):
+    global wkbk
+    wb = openpyxl.load_workbook(wkbk)
+    sheet = wb.get_sheet_by_name(name)
+    i = 2
+    while(sheet[col+str(i)].value != None):
+        i += 1
+    return i
 
 # wrapper method to handle XML extraction and writing data into excel
-def writeExcel(sheet, values, att):
+def writeExcel(name, values, att):
+    global wkbk
+    wb = openpyxl.load_workbook(wkbk)
+    sheet = wb.get_sheet_by_name(name)
     i = 0
     for each in values:
         if(i >= len(att)):
             break
-        print(indexMap[att[i]][0]+str(indexMap[att[i]][1])+": "+each)
-        sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = each
         if(indexMap[att[i]][2]):
+            sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = each
             update = { att[i]: [indexMap[att[i]][0], indexMap[att[i]][1]+1, True]}
             indexMap.update(update)
+        else:
+            sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = int(each) + int(sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])].value)
         if( i < len(att)-1):
             i+=1
+    wb.save("picnicData.xlsx")
 
-def writeFoodExcel(sheet, values, att):
+def writeFoodExcel(name, values, att):
+    global wkbk
+    wb = openpyxl.load_workbook(wkbk)
+    sheet = wb.get_sheet_by_name(name)
     i = 0
     for each in values:
-        if i == 0 or i == 1:
+        if i == 0 or i == 2:
             if(i == 0):
                 if(int(each) < 0):
-                    print(indexMap["VegB"][0]+str(indexMap["VegB"][1])+": "+str(abs(int(each))))
-                    sheet[indexMap["VegB"][0]+str(indexMap["VegB"][1])] = abs(int(each))
+                    sheet[indexMap["VegB"][0]+str(indexMap["VegB"][1])] = abs(int(each)) + sheet[indexMap["VegB"][0]+str(indexMap["VegB"][1])].value
                 else:
-                    print(indexMap["HamB"][0]+str(indexMap["HamB"][1])+": "+str(abs(int(each))))
-                    sheet[indexMap["HamB"][0]+str(indexMap["HamB"][1])] = abs(int(each))
+                    sheet[indexMap["HamB"][0]+str(indexMap["HamB"][1])] = abs(int(each)) + sheet[indexMap["HamB"][0]+str(indexMap["HamB"][1])].value
+                if( i < len(att)-1):
+                    i+=1
             else:
                 if(int(each) < 0):
-                    print(indexMap["VDog"][0]+str(indexMap["VDog"][1])+": "+str(abs(int(each))))
-                    sheet[indexMap["VDog"][0]+str(indexMap["VDog"][1])] = abs(int(each))
+                    sheet[indexMap["VDog"][0]+str(indexMap["VDog"][1])] = abs(int(each)) + sheet[indexMap["VDog"][0]+str(indexMap["VDog"][1])].value
                 else:
-                    print(indexMap["HDog"][0]+str(indexMap["HDog"][1])+": "+str(abs(int(each))))
-                    sheet[indexMap["HDog"][0]+str(indexMap["HDog"][1])] = abs(int(each))
+                    sheet[indexMap["HDog"][0]+str(indexMap["HDog"][1])] = abs(int(each)) + sheet[indexMap["HDog"][0]+str(indexMap["HDog"][1])].value
+                if( i < len(att)-1):
+                    i+=1
         else:
-            print(indexMap[att[i]][0]+str(indexMap[att[i]][1])+": "+str(each))
-            sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = int(each)
+            sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])] = int(each) + int(sheet[indexMap[att[i]][0]+str(indexMap[att[i]][1])].value)
         if( i < len(att)-1):
             i+=1
+    wb.save("picnicData.xlsx")
 
 def stripActXml(xml, att):
     values = []
